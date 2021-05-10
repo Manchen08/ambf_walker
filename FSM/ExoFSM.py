@@ -4,7 +4,7 @@ import smach
 import smach_ros
 import rospy
 
-import InitializeState, WalkInitState, WalkState, MainState, LowerState, iLQRState
+import InitializeState, WalkInitState, WalkState, MainState, LowerState, iLQRState, TaskTrackingState
 
 
 class ExoFSM():
@@ -16,10 +16,11 @@ class ExoFSM():
         with sm:
             smach.StateMachine.add('Initialize', InitializeState.InitializeState("exo"), transitions={'Initialized': 'Main'})
             
-            smach.StateMachine.add('Main', MainState.MainState(["Walk", "Lower", "Done", "ilqr"] ),
+            smach.StateMachine.add('Main', MainState.MainState(["Walk", "Lower", "Done", "ilqr", "Track"] ),
                             transitions={'Walk': 'Sub_Walk', 
                                         'Lower': 'LowerBody',
                                         "ilqr":"Sub_ILQR",
+                                        "Track": "TaskTrack",
                                         "Done": "Done" })
 
             
@@ -28,6 +29,10 @@ class ExoFSM():
 
             walk_sub = smach.StateMachine(outcomes=['walked'])
             ilqr_sub = smach.StateMachine(outcomes=['ilqred'])
+
+            # Task tracking state for having the AMBF walker track a desired trajectory in task space
+            smach.StateMachine.add('TaskTrack', TaskTrackingState.TaskTrackingState("exo", "TaskSpace"),
+                                   transitions={'task tracked': 'Main'})
 
             # Open the container 
             with walk_sub:

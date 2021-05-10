@@ -137,7 +137,7 @@ BODY Crutches:
 BODY ExoHip:
   name: ExoHip
   mesh: ExoHip.STL
-  mass: 5.0
+  mass: 0.0
   inertia:
     ix: 0.4004
     iy: 0.4587
